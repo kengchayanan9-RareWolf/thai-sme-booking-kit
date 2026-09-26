@@ -205,9 +205,12 @@ function nextSteps(c, siteUrl) {
 
 Full walkthrough: skills/thai-sme-booking/references/deploy-checklist.md
 
-1. **Apps Script + Sheet**: \`cd apps-script && npx @google/clasp create --type sheets --title "${c.shop.name} ระบบจอง" --rootDir . && npx @google/clasp push\`
-   - Script Properties: LINE_CHANNEL_ACCESS_TOKEN, SHARED_SECRET, SLIP_PROVIDER=${p.slip_provider || 'easyslip'}, SLIP_API_KEY, PAGES_DEPLOY_HOOK
-   - Run \`setup\` once from the editor, then Deploy → Web app (execute as me, anyone) → copy the /exec URL
+1. **Apps Script + Sheet** (in \`apps-script/\`):
+   - \`npx @google/clasp create-script --type sheets --title "${c.shop.name} ระบบจอง" --rootDir .\`
+   - ⚠️ create-script overwrites appsscript.json (timezone → America/New_York): re-run this build-config, then \`npx @google/clasp push -f\`
+   - Script Properties: SHARED_SECRET, SLIP_PROVIDER=${p.slip_provider || 'easyslip'}${p.slip_provider === 'mock' ? '' : ', SLIP_API_KEY'}, LINE_CHANNEL_ACCESS_TOKEN (after LINE), PAGES_DEPLOY_HOOK (after Pages)
+   - In the Sheet: menu 🗓️ ระบบจอง → ⚙️ ติดตั้ง / ซ่อมระบบ (authorize), then \`npx @google/clasp create-deployment -d "v1"\` → web app URL = https://script.google.com/macros/s/<deploymentId>/exec
+   - Later code updates: \`clasp push -f && clasp update-deployment <deploymentId>\` (URL stays the same)
 2. **Worker**: \`cd worker && npm i && npx wrangler secret put LINE_CHANNEL_SECRET && npx wrangler secret put SHARED_SECRET && npx wrangler deploy\`
 3. **LINE**: webhook URL = <worker-url>/webhook, LIFF endpoint = ${siteUrl}/liff/book
 4. **Site**: Cloudflare Pages → build \`npm run build\`, output \`dist\`, root \`site\`, env from \`site/.env\`

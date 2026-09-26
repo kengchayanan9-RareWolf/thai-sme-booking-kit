@@ -40,12 +40,18 @@ function setup() {
   if (!props.getProperty('OWNER_SETUP_CODE')) {
     props.setProperty('OWNER_SETUP_CODE', String(Math.floor(100000 + Math.random() * 900000)));
   }
-  const missing = ['LINE_CHANNEL_ACCESS_TOKEN', 'SHARED_SECRET', 'SLIP_API_KEY'].filter((k) => !props.getProperty(k));
+  const slipKeyNeeded = (props.getProperty('SLIP_PROVIDER') || 'easyslip') !== 'mock';
+  const missing = ['LINE_CHANNEL_ACCESS_TOKEN', 'SHARED_SECRET'].concat(slipKeyNeeded ? ['SLIP_API_KEY'] : [])
+    .filter((k) => !props.getProperty(k));
+  // `clasp create-script` replaces appsscript.json with a default (America/New_York), which shifts every slot.
+  const tz = Session.getScriptTimeZone();
   SpreadsheetApp.getUi().alert(
     'ติดตั้งเรียบร้อย ✅\n\n' +
     'เจ้าของร้าน: เพิ่มเพื่อน LINE OA ของร้าน แล้วพิมพ์\n/owner ' + props.getProperty('OWNER_SETUP_CODE') +
     '\nเพื่อรับแจ้งเตือนการจองและสลิป' +
-    (missing.length ? '\n\n⚠️ ยังไม่ได้ตั้ง Script Properties: ' + missing.join(', ') : ''));
+    (missing.length ? '\n\n⚠️ ยังไม่ได้ตั้ง Script Properties: ' + missing.join(', ') : '') +
+    (tz !== SETTING_DEFAULTS.timezone ? '\n\n⛔ Script time zone is ' + tz + ', expected ' + SETTING_DEFAULTS.timezone +
+      '. Restore appsscript.json from the kit and clasp push again.' : ''));
 }
 
 function formatBookings_() {

@@ -11,12 +11,14 @@ Do the steps in order; each unlocks the next. Accounts are created **in the shop
 ## 1. Google Sheet + Apps Script — `references/apps-script.md`
 - [ ] `cd clients/<slug>/build/apps-script`
 - [ ] `npx @google/clasp login` (browser; log in as the shop account)
-- [ ] `npx @google/clasp create --type sheets --title "<shop> ระบบจอง" --rootDir .`
+- [ ] `npx @google/clasp create-script --type sheets --title "<shop> ระบบจอง" --rootDir .` (clasp 3; `clasp create` on older versions)
+- [ ] ⚠️ **create-script overwrites `appsscript.json`** with a default (timezone America/New_York, no web-app config, no scopes). Re-run `build-config.mjs` to restore it, **then** push. Setup warns if the timezone is wrong
 - [ ] `npx @google/clasp push -f`
-- [ ] Open the script (`npx @google/clasp open-script`, or `clasp open` on older clasp) → ⚙️ Project Settings → Script Properties:
-      `SHARED_SECRET`, `LINE_CHANNEL_ACCESS_TOKEN` (after step 3), `SLIP_PROVIDER=easyslip`, `SLIP_API_KEY`, `PAGES_DEPLOY_HOOK` (after step 4)
-- [ ] Open the Sheet → reload → menu 🗓️ ระบบจอง → ⚙️ ติดตั้ง / ซ่อมระบบ → authorize ("unverified app" → Advanced → continue: it is the shop's own script) → note the `/owner` code
-- [ ] Deploy → New deployment → Web app → Execute as **Me**, access **Anyone** → copy the `/exec` URL → `deploy.gas_url`
+- [ ] Open the script (`npx @google/clasp open-script`) → ⚙️ Project Settings → Script Properties:
+      `SHARED_SECRET`, `SLIP_PROVIDER=easyslip`, `SLIP_API_KEY`, `LINE_CHANNEL_ACCESS_TOKEN` (after step 3), `PAGES_DEPLOY_HOOK` (after step 4)
+- [ ] Open the Sheet (`npx @google/clasp open-container`) → reload → menu 🗓️ ระบบจอง → ⚙️ ติดตั้ง / ซ่อมระบบ → authorize ("unverified app" → Advanced → continue: it is the shop's own script) → note the `/owner` code
+- [ ] `npx @google/clasp create-deployment -d "v1"` → note the deployment ID → `deploy.gas_url` = `https://script.google.com/macros/s/<deploymentId>/exec` (or UI: Deploy → New deployment → Web app → Execute as **Me**, access **Anyone**)
+- [ ] Later code changes: `clasp push -f && clasp update-deployment <deploymentId>`, which keeps the same URL
 
 ## 2. Cloudflare Worker
 - [ ] Cloudflare account (shop email) → `cd ../worker && npm i && npx wrangler login`
