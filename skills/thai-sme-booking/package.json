@@ -1,0 +1,16 @@
+{
+  "name": "thai-sme-booking-skill",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scripts used by the thai-sme-booking Claude skill (client build + Thai quotation).",
+  "scripts": {
+    "new-client": "node scripts/build-config.mjs",
+    "quote": "node scripts/quote.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

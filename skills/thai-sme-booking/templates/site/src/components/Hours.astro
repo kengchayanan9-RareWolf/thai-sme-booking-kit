@@ -1,0 +1,21 @@
+---
+import { hoursList } from '../lib/format.js';
+
+interface Props { hours: { day: number; open: string; close: string; closed: boolean }[] }
+const rows = hoursList(Astro.props.hours);
+---
+<table class="hours">
+  <tbody>
+    {rows.map((r) => (
+      <tr data-day={r.day}>
+        <td>{r.label}</td>
+        <td>{r.text}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+<script>
+  // Highlight today's row (Bangkok time) on the client; the page itself is static.
+  const day = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })).getDay();
+  document.querySelectorAll(`.hours tr[data-day="${day}"]`).forEach((tr) => tr.classList.add('today'));
+</script>

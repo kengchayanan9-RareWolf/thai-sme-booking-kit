@@ -1,0 +1,20 @@
+{
+  "name": "thai-sme-booking-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source LINE OA booking + PromptPay slip verification kit for Thai SMEs, packaged as a Claude skill.",
+  "license": "MIT",
+  "workspaces": [
+    "skills/thai-sme-booking"
+  ],
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "new-client": "node skills/thai-sme-booking/scripts/build-config.mjs",
+    "quote": "node skills/thai-sme-booking/scripts/quote.mjs",
+    "demo:build": "node skills/thai-sme-booking/scripts/build-config.mjs demo/salon/client.yaml",
+    "regen": "node tools/regen-templates.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

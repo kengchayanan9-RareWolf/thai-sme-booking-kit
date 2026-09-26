@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import Hours from '../components/Hours.astro';
+import { getSite } from '../lib/data.js';
+import { bookingUrl, lineChatUrl, telUrl } from '../lib/format.js';
+
+const { settings: s, hours } = await getSite();
+---
+<Base title="ติดต่อและเวลาทำการ" description={`ที่อยู่ เวลาทำการ และช่องทางติดต่อ ${s.shop_name}`}>
+  <section class="section">
+    <div class="wrap">
+      <h1>ติดต่อเรา</h1>
+      <div class="grid grid-2" style="margin-top:24px">
+        <div class="grid">
+          <div class="card">
+            <h2>ช่องทางติดต่อ</h2>
+            {s.address && <p>{s.address}</p>}
+            <div class="btn-row">
+              <a class="btn btn-primary" href={bookingUrl(s)}>จองคิว</a>
+              {s.line_oa_id && <a class="btn btn-line" href={lineChatUrl(s)}>แชท LINE {s.line_oa_id}</a>}
+              {s.phone && <a class="btn btn-ghost" href={telUrl(s.phone)}>โทร {s.phone}</a>}
+            </div>
+          </div>
+          <div class="card">
+            <h2>เวลาทำการ</h2>
+            <Hours hours={hours} />
+          </div>
+        </div>
+        <div class="card">
+          <h2>แผนที่</h2>
+          {s.map_embed_url
+            ? <iframe class="map" src={s.map_embed_url} title={`แผนที่ ${s.shop_name}`} loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            : <p class="muted">ยังไม่ได้เพิ่มแผนที่</p>}
+          {s.map_url && <p style="margin-top:12px"><a href={s.map_url} rel="noopener">เปิดใน Google Maps →</a></p>}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

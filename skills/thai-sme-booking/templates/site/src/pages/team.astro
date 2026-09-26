@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { getSite } from '../lib/data.js';
+import { initials } from '../lib/format.js';
+
+const { settings: s, staff, gallery } = await getSite();
+---
+<Base title="ทีมงานและผลงาน" description={`ทีมงานและผลงานของ ${s.shop_name}`}>
+  <section class="section">
+    <div class="wrap">
+      <h1>ทีมงาน</h1>
+      {staff.length === 0 && <p class="muted">เร็ว ๆ นี้</p>}
+      <div class="grid grid-2" style="margin-top:24px">
+        {staff.map((p) => (
+          <article class="card person">
+            {p.imageUrl
+              ? <img class="avatar" src={p.imageUrl} alt={p.name} width="64" height="64" loading="lazy" />
+              : <div class="avatar" aria-hidden="true">{initials(p.name)}</div>}
+            <div>
+              <h3>{p.name}</h3>
+              {p.role && <div class="role">{p.role}</div>}
+              {p.bio && <p class="muted" style="margin:0">{p.bio}</p>}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+  {gallery.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <h2>ผลงาน</h2>
+        <div class="gallery">
+          {gallery.map((g) => (
+            <figure>
+              <img src={g.imageUrl} alt={g.caption || s.shop_name} loading="lazy" width="400" height="400" />
+              {g.caption && <figcaption>{g.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>

@@ -1,0 +1,23 @@
+---
+import { baht, bookingUrl, depositNote } from '../lib/format.js';
+
+interface Props {
+  service: { id: string; name: string; nameEn?: string; durationMin: number; price: number; depositAmount: number; description?: string; imageUrl?: string };
+  settings: Record<string, unknown>;
+  showBook?: boolean;
+}
+const { service, settings, showBook = true } = Astro.props;
+---
+<article class="card service">
+  {service.imageUrl && <img src={service.imageUrl} alt={service.name} loading="lazy" width="640" height="360" />}
+  <div class="service-top">
+    <h3>{service.name}</h3>
+    <span class="price">{baht(service.price)}</span>
+  </div>
+  {service.description && <p class="muted" style="margin:0">{service.description}</p>}
+  <div class="meta">
+    <span>{service.durationMin} นาที</span>
+    <span class="pill">{depositNote(settings, service)}</span>
+  </div>
+  {showBook && <a class="btn btn-ghost" href={bookingUrl(settings, service.id)}>จองบริการนี้</a>}
+</article>

@@ -1,0 +1,325 @@
+---
+// LIFF endpoint: set the LIFF app's Endpoint URL to <site>/liff/book (size: Full).
+import Base from '../../layouts/Base.astro';
+const api = (import.meta.env.PUBLIC_API_BASE || '').replace(/\/$/, '');
+const liffId = import.meta.env.PUBLIC_LIFF_ID || '';
+---
+<Base title="จองคิว" bare>
+  <div class="book" id="app" data-api={api} data-liff={liffId}>
+    <p class="status" id="status" role="status">กำลังเปิดระบบจอง…</p>
+
+    <section id="step-form" hidden>
+      <h1 class="book-title">จองคิว</h1>
+      <p class="muted" id="shop-name"></p>
+      <div id="demo-note" class="notice" hidden>โหมดทดลอง: ไม่มีการตัดเงินจริง ส่งรูปอะไรก็ได้ในแชทแทนสลิป</div>
+
+      <fieldset>
+        <legend>1. เลือกบริการ</legend>
+        <div class="choice-list" id="services"></div>
+      </fieldset>
+
+      <fieldset id="fs-date" disabled>
+        <legend>2. เลือกวัน</legend>
+        <div class="chips" id="dates"></div>
+      </fieldset>
+
+      <fieldset id="fs-time" disabled>
+        <legend>3. เลือกเวลา</legend>
+        <div class="time-grid" id="times"></div>
+        <p class="muted" id="times-note" hidden></p>
+      </fieldset>
+
+      <fieldset id="fs-contact" disabled>
+        <legend>4. ข้อมูลติดต่อ</legend>
+        <label>ชื่อ <input type="text" id="name" autocomplete="name" maxlength="60" /></label>
+        <label>เบอร์โทร <input type="tel" id="phone" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="08x-xxx-xxxx" /></label>
+        <label class="consent">
+          <input type="checkbox" id="consent" />
+          <span>ยินยอมให้ร้านเก็บชื่อ เบอร์โทร และบัญชี LINE เพื่อจัดการนัดหมาย ตาม<a href="/privacy" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></span>
+        </label>
+      </fieldset>
+
+      <div class="summary" id="summary" hidden></div>
+      <button class="btn btn-primary btn-block" id="submit" disabled>ยืนยันการจอง</button>
+      <p class="error" id="form-error" role="alert" hidden></p>
+    </section>
+
+    <section id="step-pay" hidden>
+      <h1 class="book-title">ชำระมัดจำเพื่อยืนยันคิว</h1>
+      <div class="card pay-card">
+        <p class="muted" style="margin:0">รหัสจอง <strong id="pay-ref"></strong></p>
+        <p id="pay-summary" style="margin:4px 0 0"></p>
+        <div class="qr-wrap"><img id="qr" alt="QR พร้อมเพย์สำหรับชำระมัดจำ" width="260" height="260" /></div>
+        <p class="pay-amount" id="pay-amount"></p>
+        <p class="muted" id="pay-name"></p>
+        <p class="countdown" id="countdown-line">กรุณาชำระภายใน <strong id="countdown"></strong></p>
+      </div>
+      <ol class="steps">
+        <li>กดค้างที่ QR เพื่อบันทึกรูป หรือแคปหน้าจอ</li>
+        <li>เปิดแอปธนาคาร → สแกน → เลือกรูป QR จากอัลบั้ม ยอดเงินจะขึ้นให้อัตโนมัติ</li>
+        <li>กลับมาที่แชท LINE ของร้าน แล้ว<strong>ส่งรูปสลิป</strong> ระบบจะยืนยันคิวให้ทันที</li>
+      </ol>
+      <button class="btn btn-primary btn-block" id="to-chat">กลับไปแชทเพื่อส่งสลิป</button>
+    </section>
+
+    <section id="step-done" class="done" hidden>
+      <div class="done-icon" aria-hidden="true">✓</div>
+      <h1 class="book-title">จองคิวเรียบร้อย</h1>
+      <p id="done-summary"></p>
+      <p class="muted">ร้านจะส่งข้อความเตือนใน LINE ก่อนถึงวันนัด</p>
+      <button class="btn btn-primary btn-block" id="done-close">ปิด</button>
+    </section>
+  </div>
+
+  <script is:inline src="https://static.line-scdn.net/liff/edge/2/sdk.js" charset="utf-8"></script>
+  <script>
+    import QRCode from 'qrcode';
+    import { promptPayPayload } from '../../lib/promptpay.js';
+
+    const $ = (id: string) => document.getElementById(id) as HTMLElement;
+    const app = $('app');
+    const API = app.dataset.api || '';
+    const LIFF_ID = app.dataset.liff || '';
+    // http://localhost:4321/liff/book?preview — UI preview with fake LINE login and demo data.
+    const PREVIEW = ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('preview');
+    let liff: any = (window as any).liff;
+    const TZ = 'Asia/Bangkok';
+    const ERRORS: Record<string, string> = {
+      SLOT_TAKEN: 'ขออภัย เวลานี้เพิ่งมีคนจองไป กรุณาเลือกเวลาใหม่',
+      BAD_PHONE: 'กรุณากรอกเบอร์โทรให้ถูกต้อง',
+      NAME_REQUIRED: 'กรุณากรอกชื่อ',
+      CONSENT_REQUIRED: 'กรุณากดยินยอมก่อนจอง',
+      NOT_LOGGED_IN: 'กรุณาปิดแล้วเปิดหน้านี้ผ่าน LINE อีกครั้ง',
+      BAD_SERVICE: 'บริการนี้ปิดรับจองแล้ว'
+    };
+    const state: any = { shop: null, services: [], service: null, date: null, slot: null };
+
+    const baht = (n: number) => '฿' + Number(n).toLocaleString('en-US');
+    const ymd = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+    const fmt = (d: Date, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('th-TH', { timeZone: TZ, ...o }).format(d);
+    const dateText = (ms: number) => fmt(new Date(ms), { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + fmt(new Date(ms), { hour: '2-digit', minute: '2-digit' }) + ' น.';
+
+    function status(msg: string) { $('status').textContent = msg; $('status').hidden = !msg; }
+    function store(key: string, value?: string) {
+      try { if (value === undefined) return localStorage.getItem(key) || ''; localStorage.setItem(key, value); } catch { /* storage blocked */ }
+      return '';
+    }
+    async function api(path: string, init?: RequestInit) {
+      if (PREVIEW) return previewApi(path, init);
+      try {
+        const res = await fetch(API + path, init);
+        return await res.json();
+      } catch {
+        return { ok: false, error: 'NETWORK' };
+      }
+    }
+    function button(cls: string, html: string, onClick: () => void) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = cls;
+      b.innerHTML = html;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', onClick);
+      return b;
+    }
+    function press(container: HTMLElement, el: HTMLElement) {
+      container.querySelectorAll('[aria-pressed]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      el.setAttribute('aria-pressed', 'true');
+    }
+    const esc = (s: string) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] as string));
+
+    function renderServices(preselect: string | null) {
+      const box = $('services');
+      box.innerHTML = '';
+      state.services.forEach((s: any) => {
+        const deposit = s.depositAmount ? `มัดจำ ${baht(s.depositAmount)}` : 'ไม่ต้องมัดจำ';
+        const b = button('choice', `<strong>${esc(s.name)}</strong><strong>${baht(s.price)}</strong><small>${s.durationMin} นาที · ${deposit}</small>`, () => selectService(s, b));
+        box.appendChild(b);
+        if (preselect === s.id) selectService(s, b);
+      });
+    }
+
+    function selectService(s: any, el: HTMLElement) {
+      press($('services'), el);
+      state.service = s;
+      state.slot = null;
+      ($('fs-date') as HTMLFieldSetElement).disabled = false;
+      renderDates();
+      update();
+    }
+
+    function renderDates() {
+      const box = $('dates');
+      box.innerHTML = '';
+      const days = state.shop.daysAhead || 30;
+      for (let i = 0; i < days; i++) {
+        const d = new Date(Date.now() + i * 86400000);
+        const key = ymd(d);
+        const label = i === 0 ? 'วันนี้' : i === 1 ? 'พรุ่งนี้' : fmt(d, { weekday: 'short' });
+        const b = button('chip', `<small>${label}</small><span>${fmt(d, { day: 'numeric', month: 'short' })}</span>`, () => selectDate(key, b));
+        box.appendChild(b);
+        if (key === state.date || (!state.date && i === 0)) selectDate(key, b);
+      }
+    }
+
+    async function selectDate(key: string, el: HTMLElement) {
+      press($('dates'), el);
+      state.date = key;
+      state.slot = null;
+      update();
+      const box = $('times');
+      const note = $('times-note');
+      ($('fs-time') as HTMLFieldSetElement).disabled = false;
+      box.innerHTML = '';
+      note.hidden = false;
+      note.textContent = 'กำลังโหลดเวลาว่าง…';
+      const res = await api(`/api/slots?date=${key}&serviceId=${encodeURIComponent(state.service.id)}`);
+      if (state.date !== key) return; // a newer date was picked meanwhile
+      if (!res.ok) { note.textContent = 'โหลดเวลาว่างไม่สำเร็จ ลองอีกครั้ง'; return; }
+      note.hidden = res.slots.length > 0;
+      note.textContent = 'วันนี้คิวเต็มหรือร้านปิด ลองเลือกวันอื่นนะคะ';
+      res.slots.forEach((slot: any) => {
+        const b = button('', slot.label, () => { press(box, b); state.slot = slot; ($('fs-contact') as HTMLFieldSetElement).disabled = false; update(); });
+        box.appendChild(b);
+      });
+    }
+
+    function valid() {
+      const phone = ($('phone') as HTMLInputElement).value.replace(/\D/g, '');
+      return state.service && state.slot && ($('name') as HTMLInputElement).value.trim() && /^0\d{8,9}$/.test(phone) && ($('consent') as HTMLInputElement).checked;
+    }
+
+    function update() {
+      const sum = $('summary');
+      if (state.service && state.slot) {
+        sum.hidden = false;
+        sum.innerHTML = `<dl><dt>บริการ</dt><dd>${esc(state.service.name)}</dd><dt>วันเวลา</dt><dd>${dateText(state.slot.startMs)}</dd>` +
+          `<dt>ราคา</dt><dd>${baht(state.service.price)}</dd>` +
+          (state.service.depositAmount ? `<dt>มัดจำ</dt><dd>${baht(state.service.depositAmount)} (โอนหลังกดยืนยัน)</dd>` : '') + '</dl>';
+      } else {
+        sum.hidden = true;
+      }
+      ($('submit') as HTMLButtonElement).disabled = !valid();
+    }
+
+    async function submit() {
+      const btn = $('submit') as HTMLButtonElement;
+      const err = $('form-error');
+      err.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'กำลังจอง…';
+      const name = ($('name') as HTMLInputElement).value.trim();
+      const phone = ($('phone') as HTMLInputElement).value.trim();
+      const res = await api('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: liff.getIDToken(), name, phone, serviceId: state.service.id, startMs: state.slot.startMs, consent: true })
+      });
+      btn.textContent = 'ยืนยันการจอง';
+      if (!res.ok) {
+        err.textContent = ERRORS[res.error] || 'จองไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+        err.hidden = false;
+        if (res.error === 'SLOT_TAKEN') {
+          const current = $('dates').querySelector('[aria-pressed="true"]') as HTMLElement;
+          if (current) selectDate(state.date, current);
+        }
+        update();
+        return;
+      }
+      store('tsb_name', name);
+      store('tsb_phone', phone);
+      $('step-form').hidden = true;
+      window.scrollTo(0, 0);
+      if (res.status === 'CONFIRMED') return showDone(res);
+      showPay(res);
+    }
+
+    async function showPay(res: any) {
+      $('step-pay').hidden = false;
+      $('pay-ref').textContent = res.ref;
+      $('pay-summary').textContent = `${res.serviceName} · ${res.startText}`;
+      $('pay-amount').textContent = baht(res.deposit);
+      $('pay-name').textContent = res.promptpayName ? `พร้อมเพย์: ${res.promptpayName}` : '';
+      ($('qr') as HTMLImageElement).src = await QRCode.toDataURL(promptPayPayload(res.promptpayId, res.deposit), { margin: 1, width: 520, errorCorrectionLevel: 'M' });
+      const deadline = Date.now() + res.holdMinutes * 60000;
+      const tick = () => {
+        const left = Math.max(0, deadline - Date.now());
+        const m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+        $('countdown').textContent = `${m}:${String(s).padStart(2, '0')} นาที`;
+        if (left > 0) setTimeout(tick, 1000);
+        else $('countdown-line').textContent = 'หมดเวลาชำระแล้ว หากโอนแล้วให้ส่งสลิปในแชทได้เลย ร้านจะตรวจสอบให้';
+      };
+      tick();
+    }
+
+    function showDone(res: any) {
+      $('step-done').hidden = false;
+      $('done-summary').textContent = `${res.serviceName} · ${res.startText} (รหัสจอง ${res.ref})`;
+    }
+
+    function backToChat() {
+      if (liff.isInClient()) liff.closeWindow();
+      else if (state.shop.lineOaId) location.href = `https://line.me/R/ti/p/${encodeURIComponent(state.shop.lineOaId)}`;
+    }
+
+    async function previewApi(path: string, init?: RequestInit) {
+      const data = (await import('../../data/site.json')).default as any;
+      if (path.startsWith('/api/services')) {
+        const s = data.settings;
+        return { ok: true, services: data.services, shop: { name: s.shop_name, daysAhead: 14, holdMinutes: Number(s.hold_minutes) || 20, demoMode: true, lineOaId: s.line_oa_id } };
+      }
+      if (path.startsWith('/api/slots')) {
+        const date = new URLSearchParams(path.split('?')[1]).get('date');
+        const slots = [];
+        for (let m = 600; m <= 1020; m += 30) {
+          const startMs = Date.parse(`${date}T${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}:00+07:00`);
+          if (startMs > Date.now() && m % 90 !== 0) slots.push({ startMs, label: new Date(startMs + 7 * 3600000).toISOString().slice(11, 16) });
+        }
+        return { ok: true, slots };
+      }
+      const body = JSON.parse(String(init?.body || '{}'));
+      const svc = data.services.find((s: any) => s.id === body.serviceId);
+      return {
+        ok: true, ref: 'BPRVW7', status: svc.depositAmount ? 'PENDING_DEPOSIT' : 'CONFIRMED', serviceName: svc.name,
+        startText: dateText(body.startMs), deposit: svc.depositAmount, promptpayId: '0000000000',
+        promptpayName: data.settings.shop_name, holdMinutes: 20
+      };
+    }
+
+    async function main() {
+      if (PREVIEW) {
+        liff = { init: async () => {}, isLoggedIn: () => true, getIDToken: () => 'preview', getDecodedIDToken: () => ({ name: 'ลูกค้าทดลอง' }), isInClient: () => false, closeWindow() {} };
+      } else if (!API || !LIFF_ID) {
+        return status('ยังไม่ได้ตั้งค่าระบบจอง (PUBLIC_API_BASE / PUBLIC_LIFF_ID)');
+      }
+      try {
+        await liff.init({ liffId: LIFF_ID });
+      } catch {
+        return status('เปิดระบบจองไม่สำเร็จ กรุณาลองใหม่ผ่าน LINE');
+      }
+      if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href });
+
+      const data = await api('/api/services');
+      if (!data.ok) return status('โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+      state.shop = data.shop;
+      state.services = data.services;
+      status('');
+      $('shop-name').textContent = data.shop.name;
+      $('demo-note').hidden = !data.shop.demoMode;
+      $('step-form').hidden = false;
+
+      const token = liff.getDecodedIDToken && liff.getDecodedIDToken();
+      ($('name') as HTMLInputElement).value = store('tsb_name') || (token && token.name) || '';
+      ($('phone') as HTMLInputElement).value = store('tsb_phone');
+      ['name', 'phone', 'consent'].forEach((id) => $(id).addEventListener('input', update));
+      $('consent').addEventListener('change', update);
+      $('submit').addEventListener('click', submit);
+      $('to-chat').addEventListener('click', backToChat);
+      $('done-close').addEventListener('click', backToChat);
+
+      renderServices(new URLSearchParams(location.search).get('service'));
+    }
+
+    main();
+  </script>
+</Base>

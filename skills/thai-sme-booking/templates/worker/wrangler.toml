@@ -1,0 +1,16 @@
+# Generated per client by scripts/build-config.mjs — edit client.yaml, not this file.
+name = "demo-salon-api"
+main = "index.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+# Apps Script web app URL (Deploy → New deployment → Web app → copy URL ending in /exec)
+GAS_URL = "https://script.google.com/macros/s/REPLACE_ME/exec"
+# LINE Login channel ID that owns the LIFF app (LINE Developers console → LINE Login channel → Basic settings)
+LINE_LOGIN_CHANNEL_ID = "REPLACE_ME"
+# Origins allowed to call /api/* — the website domain(s) that host the LIFF page
+ALLOWED_ORIGINS = "https://demo-salon.pages.dev"
+
+# Secrets (never commit):
+#   npx wrangler secret put LINE_CHANNEL_SECRET   # Messaging API channel → Basic settings → Channel secret
+#   npx wrangler secret put SHARED_SECRET         # same value as Apps Script Script Property SHARED_SECRET

@@ -1,0 +1,113 @@
+# pricing.yaml — your rate card, read by scripts/quote.mjs.
+# Keep your REAL prices private (e.g. in a private repo). The numbers below are EXAMPLES so the
+# quote generator works out of the box — see PRICING.md for how to set yours.
+
+freelancer:
+  name: ชื่อ-นามสกุลของคุณ
+  business_name: ""              # optional brand / studio name
+  phone: 08x-xxx-xxxx
+  email: you@example.com
+  line: "@yourline"
+  tax_id: ""                     # เลขประจำตัวผู้เสียภาษี (optional)
+  payment: พร้อมเพย์ 08x-xxx-xxxx (ชื่อบัญชี ...)
+
+quote:
+  valid_days: 15
+  vat_registered: false
+  deposit_pct: 50                # 50% before work starts, the rest at go-live
+  revisions: 2
+  warranty_days: 30
+
+packages:
+  starter:
+    name: Starter
+    name_th: แพ็กเกจเริ่มต้น — ระบบจองคิวผ่าน LINE
+    price: 10000
+    timeline_days: 5
+    includes:
+      - ตั้งค่า LINE Official Account + ริชเมนู
+      - หน้าจองคิวใน LINE (เลือกบริการ วัน เวลา)
+      - QR พร้อมเพย์ยอดมัดจำอัตโนมัติ + ระบบตรวจสลิปกับธนาคาร
+      - แชทบอทตอบคำถามที่พบบ่อย (ราคา เวลาเปิด แผนที่ ฯลฯ)
+      - ซิงก์ Google Calendar + ข้อความเตือนนัดล่วงหน้า 1 วัน
+      - ตารางจัดการการจองใน Google Sheets
+      - คู่มือการใช้งานภาษาไทยสำหรับเจ้าของร้าน
+  complete:
+    name: Complete
+    name_th: แพ็กเกจครบชุด — ระบบจอง + เว็บไซต์ร้าน
+    price: 20000
+    timeline_days: 10
+    includes:
+      - ทุกอย่างในแพ็กเกจเริ่มต้น
+      - เว็บไซต์ร้าน 5 หน้า (หน้าแรก บริการและราคา ทีมงาน/ผลงาน รีวิว ติดต่อ) + นโยบายความเป็นส่วนตัว
+      - แก้ไขราคา/บริการเองได้จาก Google Sheets แล้วกดอัปเดตเว็บไซต์
+      - ตั้งค่า Google Business Profile (Google Maps)
+      - เชื่อมโดเมนของร้าน (ถ้ามี)
+
+addons:
+  multi_staff:
+    name_th: เลือกช่าง/ห้องได้ (แยกตารางเวลาต่อคน)
+    price: 4000
+  reschedule:
+    name_th: ลูกค้าเลื่อน/ยกเลิกนัดเองได้ตามเงื่อนไขมัดจำ
+    price: 2500
+  extra_page:
+    name_th: หน้าเว็บไซต์เพิ่มเติม (ต่อหน้า)
+    price: 1200
+  english:
+    name_th: เว็บไซต์ภาษาอังกฤษ
+    price: 2000
+  ai_agent:
+    name_th: AI ตอบแชทลูกค้า 24 ชม.
+    price: 0
+    available: false             # roadmap — quote.mjs refuses to include it until you enable it
+
+care_plans:
+  care:
+    name_th: Care — ดูแลระบบรายเดือน
+    price: 600
+    includes:
+      - ตรวจสอบระบบและแก้ไขปัญหา (รวม LINE/ผู้ให้บริการตรวจสลิปเปลี่ยนระบบ)
+      - ตอบกลับภายใน 48 ชม.
+  care_plus:
+    name_th: Care+ — ดูแลระบบ + รายงานรายเดือน
+    price: 1200
+    includes:
+      - ทุกอย่างใน Care
+      - รายงานยอดจอง รายได้ และอัตราไม่มาตามนัดทุกเดือน
+      - แก้ไขเนื้อหา/ราคา/รูป ไม่เกิน 3 ครั้งต่อเดือน
+extra_task_th: งานนอกแพ็กเกจคิดตามงาน เริ่มต้น 300–500 บาท
+
+promos:
+  launch_free:
+    label_th: ราคาเปิดตัว — ฟรีค่าติดตั้งแพ็กเกจ
+    discount_pct: 100
+    ends: "2026-12-31"
+    conditions_th:
+      - ยินยอมให้ใช้ร้านเป็นผลงานตัวอย่าง (ภาพหน้าจอ ชื่อร้าน ลิงก์)
+      - ให้รีวิวหลังใช้งานครบ 30 วัน
+      - สมัครแผนดูแลรายเดือนอย่างน้อย 3 เดือน
+  launch_half:
+    label_th: ราคาเปิดตัว — ลด 50% ค่าติดตั้งแพ็กเกจ
+    discount_pct: 50
+    ends: "2026-12-31"
+    conditions_th:
+      - ยินยอมให้ใช้ร้านเป็นผลงานตัวอย่าง
+      - ให้รีวิวหลังใช้งานครบ 30 วัน
+
+vendor_costs:                    # the client pays these directly, on accounts in the shop's name
+  verified: 2026-09              # re-check prices before quoting
+  items:
+    - { item_th: LINE Official Account, cost_th: "ฟรี — จ่ายเมื่อข้อความ push เกินโควต้าฟรี (แพ็กเกจเริ่มประมาณ ฿1,500/เดือน)" }
+    - { item_th: ระบบตรวจสลิป (EasySlip หรือเทียบเท่า), cost_th: "ประมาณ ฿99–350/เดือน ตามจำนวนสลิป" }
+    - { item_th: โดเมน .com (ถ้าต้องการ), cost_th: "ประมาณ ฿400–1,000/ปี" }
+    - { item_th: "Google Sheets / Calendar, Cloudflare (เว็บไซต์)", cost_th: ฟรี }
+
+exclusions_th:
+  - การถ่ายภาพ/วิดีโอ และการเขียนบทความ (ร้านจัดเตรียมรูปและข้อมูลให้)
+  - ค่าโฆษณาและการยิงแอด
+  - ค่าบริการของผู้ให้บริการภายนอกตามตารางด้านล่าง
+
+notes_th:
+  - กรณีผู้ว่าจ้างเป็นนิติบุคคล สามารถหักภาษี ณ ที่จ่าย 3% และส่งหนังสือรับรองการหักภาษีให้ผู้ให้บริการ
+  - บัญชีทั้งหมด (LINE OA, Google, ตรวจสลิป, โดเมน) จดในชื่อร้าน ผู้ให้บริการเป็นผู้ดูแลร่วมเท่านั้น

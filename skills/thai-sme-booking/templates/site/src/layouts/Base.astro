@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import { getSite } from '../lib/data.js';
+import { bookingUrl, lineChatUrl, telUrl, truthy, localBusinessJsonLd } from '../lib/format.js';
+
+interface Props {
+  title?: string;
+  description?: string;
+  bare?: boolean; // LIFF pages: no site chrome inside the LINE app
+}
+const { title, description, bare = false } = Astro.props;
+const data = await getSite();
+const s = data.settings;
+const site = data.site;
+const fullTitle = title ? `${title} | ${s.shop_name}` : `${s.shop_name}${s.tagline ? ' – ' + s.tagline : ''}`;
+const desc = description || site.hero_subtitle || s.tagline || '';
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const nav = [
+  ['/', 'หน้าแรก'],
+  ['/services', 'บริการและราคา'],
+  ['/team', 'ทีมงาน'],
+  ['/reviews', 'รีวิว'],
+  ['/contact', 'ติดต่อ']
+];
+const book = bookingUrl(s);
+const cta = site.cta_text || 'จองคิวผ่าน LINE';
+---
+<!doctype html>
+<html lang="th" style={`--brand:${s.brand_color || '#9C6B78'}`}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    {site.hero_image_url && <meta property="og:image" content={site.hero_image_url} />}
+    <meta name="theme-color" content={s.brand_color || '#9C6B78'} />
+    {bare && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Serif+Thai:wght@600&display=swap" rel="stylesheet" />
+    {!bare && <script type="application/ld+json" set:html={JSON.stringify(localBusinessJsonLd(data))} />}
+  </head>
+  <body>
+    {truthy(s.demo_mode) && <div class="demo-bar">ร้านตัวอย่าง (โหมดทดลอง) — ข้อมูลและการชำระเงินทั้งหมดเป็นการจำลอง</div>}
+    {!bare && (
+      <header class="site-header">
+        <div class="wrap">
+          <a class="brand" href="/">{s.shop_name}</a>
+          <nav class="nav" aria-label="เมนูหลัก">
+            {nav.map(([href, label]) => <a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a>)}
+          </nav>
+          <a class="btn btn-primary header-cta" href={book}>{cta}</a>
+          <details class="menu">
+            <summary aria-label="เปิดเมนู"><span></span><span></span><span></span></summary>
+            <div class="menu-panel">
+              {nav.map(([href, label]) => <a href={href}>{label}</a>)}
+            </div>
+          </details>
+        </div>
+      </header>
+    )}
+    <main>
+      <slot />
+    </main>
+    {!bare && (
+      <>
+        <footer class="site-footer">
+          <div class="wrap">
+            <div>
+              <p><strong>{s.shop_name}</strong>{s.address && <><br />{s.address}</>}</p>
+              <div class="footer-links">
+                {s.phone && <a href={telUrl(s.phone)}>โทร {s.phone}</a>}
+                {s.line_oa_id && <a href={lineChatUrl(s)}>LINE {s.line_oa_id}</a>}
+                {s.facebook_url && <a href={s.facebook_url} rel="noopener">Facebook</a>}
+                {s.instagram_url && <a href={s.instagram_url} rel="noopener">Instagram</a>}
+                {s.tiktok_url && <a href={s.tiktok_url} rel="noopener">TikTok</a>}
+              </div>
+            </div>
+            <div class="footer-links">
+              <a href="/contact">เวลาทำการและแผนที่</a>
+              <a href="/privacy">นโยบายความเป็นส่วนตัว</a>
+              {site.credit_text && (site.credit_url ? <a href={site.credit_url} rel="noopener">{site.credit_text}</a> : <span>{site.credit_text}</span>)}
+            </div>
+          </div>
+        </footer>
+        <div class="mobile-cta">
+          {s.phone && <a class="btn btn-ghost" href={telUrl(s.phone)}>โทร</a>}
+          <a class="btn btn-primary" href={book}>{cta}</a>
+        </div>
+      </>
+    )}
+  </body>
+</html>

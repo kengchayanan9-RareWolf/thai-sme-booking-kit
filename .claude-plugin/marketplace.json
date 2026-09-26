@@ -1,0 +1,11 @@
+{
+  "name": "thai-sme-booking-kit",
+  "owner": { "name": "kengsan-rarewolf" },
+  "plugins": [
+    {
+      "name": "thai-sme-booking",
+      "source": "./",
+      "description": "LINE OA booking + PromptPay slip verification kit for Thai SMEs, as a Claude skill."
+    }
+  ]
+}

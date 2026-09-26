@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import Hours from '../components/Hours.astro';
+import { getSite } from '../lib/data.js';
+import { bookingUrl } from '../lib/format.js';
+
+const { settings: s, site, services, reviews, hours } = await getSite();
+const highlights = [1, 2, 3]
+  .map((i) => ({ title: site[`highlight_${i}_title`], text: site[`highlight_${i}_text`] }))
+  .filter((h) => h.title);
+const book = bookingUrl(s);
+---
+<Base>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        {s.tagline && <p class="eyebrow">{s.tagline}</p>}
+        <h1>{site.hero_title || s.shop_name}</h1>
+        {site.hero_subtitle && <p class="lead">{site.hero_subtitle}</p>}
+        <div class="btn-row">
+          <a class="btn btn-primary" href={book}>{site.cta_text || 'จองคิวผ่าน LINE'}</a>
+          <a class="btn btn-ghost" href="/services">ดูบริการและราคา</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden={site.hero_image_url ? undefined : 'true'}>
+        {site.hero_image_url && <img src={site.hero_image_url} alt={s.shop_name} width="960" height="720" fetchpriority="high" />}
+      </div>
+    </div>
+  </section>
+
+  {highlights.length > 0 && (
+    <section class="section" style="padding-top:0">
+      <div class="wrap grid grid-3">
+        {highlights.map((h) => (
+          <div class="card highlight"><h3>{h.title}</h3><p>{h.text}</p></div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div><h2>บริการยอดนิยม</h2><p>ราคาชัดเจน จองและมัดจำออนไลน์ได้ทันที</p></div>
+        <a href="/services">ดูทั้งหมด →</a>
+      </div>
+      <div class="grid grid-2">
+        {services.slice(0, 4).map((svc) => <ServiceCard service={svc} settings={s} />)}
+      </div>
+    </div>
+  </section>
+
+  {site.about && (
+    <section class="section">
+      <div class="wrap prose">
+        <p class="eyebrow">เกี่ยวกับเรา</p>
+        <h2>{s.shop_name}</h2>
+        <p>{site.about}</p>
+      </div>
+    </section>
+  )}
+
+  {reviews.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>ลูกค้าพูดถึงเรา</h2><a href="/reviews">อ่านรีวิวทั้งหมด →</a></div>
+        <div class="grid grid-3">
+          {reviews.slice(0, 3).map((r) => (
+            <figure class="card review" style="margin:0">
+              <div class="stars" aria-label={`${r.stars} ดาว`}>{'★'.repeat(r.stars)}</div>
+              <blockquote style="margin:0"><p>{r.text}</p></blockquote>
+              <figcaption class="muted">— {r.name}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="wrap grid grid-2">
+      <div class="card">
+        <h2>เวลาทำการ</h2>
+        <Hours hours={hours} />
+      </div>
+      <div class="card">
+        <h2>เดินทางมาร้าน</h2>
+        {s.address && <p>{s.address}</p>}
+        <div class="btn-row">
+          {s.map_url && <a class="btn btn-ghost" href={s.map_url} rel="noopener">เปิด Google Maps</a>}
+          <a class="btn btn-ghost" href="/contact">ช่องทางติดต่อ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>พร้อมให้เราดูแลแล้วหรือยัง?</h2>
+        <p>เลือกบริการและเวลาที่สะดวกผ่าน LINE ได้ตลอด 24 ชั่วโมง</p>
+        <a class="btn" href={book}>{site.cta_text || 'จองคิวผ่าน LINE'}</a>
+      </div>
+    </div>
+  </section>
+</Base>

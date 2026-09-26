@@ -1,0 +1,121 @@
+# Demo shop (fictional). Build: npm run demo:build   — deploys like any client, with demo_mode on.
+# This example is the fictional demo salon used in the public demo.
+
+slug: baan-suay-salon            # lowercase-kebab; used for Worker/Pages project names
+
+shop:
+  name: บ้านสวย ซาลอน
+  name_en: Baan Suay Salon
+  tagline: ร้านทำผมเล็ก ๆ ที่ใส่ใจทุกรายละเอียด
+  business_type: HairSalon       # schema.org type: HairSalon, BeautySalon, DaySpa, NailSalon, MedicalClinic, DentalClinic...
+  phone: 080-000-0000
+  address: 123/45 ถนนตัวอย่าง แขวงตัวอย่าง เขตตัวอย่าง กรุงเทพฯ 10110
+  map_url: https://maps.google.com/?q=13.7563,100.5018
+  map_embed_url: https://www.google.com/maps?q=13.7563,100.5018&output=embed
+  line_oa_id: "@baansuay"
+  facebook_url: ""
+  instagram_url: ""
+  tiktok_url: ""
+  google_review_url: ""          # Google Business Profile → "Ask for reviews" link
+  brand_color: "#9C6B78"
+  price_range: ฿฿
+
+owner:
+  email: owner@example.com       # alerts + monthly quota warnings
+  alert_via: line                # line | email | both  (LINE alerts use push quota)
+
+booking:
+  slot_step_min: 30              # start times every N minutes
+  buffer_min: 10                 # cleanup gap between appointments
+  capacity: 1                    # parallel customers per slot (chairs) when not picking staff
+  days_ahead: 30
+  min_lead_hours: 2              # no same-hour surprise bookings
+  hold_minutes: 20               # unpaid booking holds the slot this long
+  reminder_hour: 18              # daily reminder push for tomorrow's customers
+  keywords: จอง,นัด,คิว,book     # chat words that answer with the booking button
+  calendar_id: ""                # blank = the Google account that owns the script
+  calendar_blocks_slots: true    # owner's own calendar events block slots
+
+payment:
+  deposit_type: percent          # percent | fixed | none
+  deposit_value: 30
+  promptpay_id: "0000000000"     # shop's PromptPay (phone / 13-digit ID). Placeholder never receives money.
+  promptpay_name: บ้านสวย ซาลอน   # shown under the QR so customers trust it
+  receiver_names: "สมหญิง ใจดี, SOMYING JAIDEE"   # account-holder names as banks print them on slips
+  receiver_accounts: ""          # bank account numbers and/or PromptPay IDs; blank = promptpay_id
+  slip_max_age_hours: 24
+  slip_provider: mock            # demo: no real slip checks, no money moves
+
+hours:                           # "HH:MM-HH:MM" or closed
+  mon: closed
+  tue: "10:00-20:00"
+  wed: "10:00-20:00"
+  thu: "10:00-20:00"
+  fri: "10:00-20:00"
+  sat: "09:00-20:00"
+  sun: "09:00-18:00"
+
+holidays:
+  - { date: "2026-12-31", note: หยุดสิ้นปี }
+  - { date: "2027-01-01", note: หยุดปีใหม่ }
+
+services:                        # deposit: blank = shop rule, 0 = no deposit, number = fixed override
+  - { id: cut-women, name: ตัดผมผู้หญิง, name_en: Women's haircut, duration_min: 60, price: 450, description: สระ ตัด ไดร์ จัดทรง }
+  - { id: cut-men, name: ตัดผมผู้ชาย, name_en: Men's haircut, duration_min: 30, price: 250, deposit: 0, description: ตัด สระ เซ็ตทรง }
+  - { id: color, name: ทำสีผม, name_en: Hair color, duration_min: 120, price: 1500, deposit: 500, description: รวมทรีตเมนต์ปกป้องสี (ผมยาวคิดเพิ่ม) }
+  - { id: treatment, name: ทรีตเมนต์บำรุงผม, name_en: Hair treatment, duration_min: 60, price: 800, description: ฟื้นฟูผมแห้งเสีย }
+  - { id: gel-nails, name: ทาเล็บเจล, name_en: Gel nails, duration_min: 60, price: 390, description: มือหรือเท้า เลือกสีได้ }
+
+faq:                             # placeholders: {services} {hours} {address} {map_url} {phone} {booking_url} {site_url} {shop_name}
+  - { keywords: "ราคา,price,เท่าไหร่,กี่บาท", answer: "ราคาบริการของ {shop_name} ค่ะ\n{services}\n\nจองคิวได้ที่ {booking_url}" }
+  - { keywords: "เปิดกี่โมง,เวลาเปิด,เปิดวันไหน,ปิดกี่โมง,hours", answer: "เวลาทำการค่ะ\n{hours}" }
+  - { keywords: "ที่อยู่,แผนที่,อยู่ไหน,ไปยังไง,location,map", answer: "{address}\n\nแผนที่: {map_url}" }
+  - { keywords: "ที่จอด,จอดรถ,parking", answer: "จอดรถได้หน้าร้าน 3 คัน หรือลานจอดข้างร้าน (ฟรี 2 ชม.) ค่ะ" }
+  - { keywords: "มัดจำ,deposit,โอน", answer: "จองผ่านระบบจะมีมัดจำ 30% (ตัดผมชายไม่ต้องมัดจำ) โอนผ่าน QR พร้อมเพย์ แล้วส่งสลิปในแชทนี้ ระบบยืนยันให้อัตโนมัติค่ะ" }
+  - { keywords: "ยกเลิก,เลื่อน,cancel", answer: "เลื่อนนัดได้ฟรีเมื่อแจ้งล่วงหน้า 24 ชม. ค่ะ กรณียกเลิกกระชั้นชิดขอสงวนสิทธิ์ไม่คืนมัดจำนะคะ พิมพ์แจ้งในแชทนี้ได้เลย" }
+  - { keywords: "เบอร์,โทร,phone", answer: "โทรหาร้านได้ที่ {phone} ค่ะ" }
+
+site:
+  hero_title: ผมสวยในแบบที่เป็นคุณ
+  hero_subtitle: ร้านทำผมและเล็บย่านใจกลางเมือง จองคิวผ่าน LINE ได้ตลอด 24 ชม. ไม่ต้องรอสาย
+  about: บ้านสวย ซาลอน เริ่มจากร้านเล็ก ๆ ของช่างผมที่มีประสบการณ์กว่า 10 ปี เราใช้ผลิตภัณฑ์คุณภาพ ใส่ใจสุขภาพเส้นผม และให้คำแนะนำทรงที่เหมาะกับคุณจริง ๆ
+  highlight_1_title: ช่างมืออาชีพ
+  highlight_1_text: ประสบการณ์กว่า 10 ปี อัปเดตเทรนด์ทุกปี
+  highlight_2_title: จองง่ายผ่าน LINE
+  highlight_2_text: เลือกเวลาเอง ยืนยันทันทีหลังโอนมัดจำ
+  highlight_3_title: ผลิตภัณฑ์ถนอมผม
+  highlight_3_text: สีและทรีตเมนต์สูตรอ่อนโยน
+  hero_image_url: ""
+  cta_text: จองคิวผ่าน LINE
+
+staff:
+  - { name: พี่หญิง, role: หัวหน้าช่าง / ทำสี, bio: ถนัดทำสีโทนน้ำตาลและบาลายาจ, image_url: "" }
+  - { name: พี่ต้น, role: ช่างตัดผมชาย, bio: รองทรง ซอยสั้น แฟชั่นเกาหลี, image_url: "" }
+
+reviews:                         # demo reviews — replace with real ones (with permission)
+  - { name: คุณเมย์, text: ทำสีออกมาสวยตรงปก ช่างใส่ใจมาก จองผ่าน LINE สะดวกสุด ๆ, stars: 5 }
+  - { name: คุณบอส, text: ตัดผมเร็ว เนี้ยบ ไม่ต้องรอคิวเพราะจองเวลาไว้แล้ว, stars: 5 }
+  - { name: คุณแพร, text: ทำเล็บเจลอยู่ได้นาน ร้านสะอาด บรรยากาศดี, stars: 5 }
+
+gallery: []                      # - { image_url: https://..., caption: ... }
+
+pdpa:
+  retention_months: 12
+  privacy_contact: owner@example.com
+
+deploy:                          # fill after each service exists (see references/deploy-checklist.md)
+  site_url: https://baan-suay-salon.pages.dev
+  worker_url: https://baan-suay-salon-api.YOUR-SUBDOMAIN.workers.dev
+  gas_url: ""
+  liff_id: ""
+  line_login_channel_id: ""
+  demo_mode: true               # demo only: mock slip provider accepts any image
+
+project:                         # used by scripts/quote.mjs
+  package: complete              # starter | complete
+  addons: []                     # keys from pricing.yaml addons, e.g. [multi_staff, reschedule]
+  promo: none                    # none | launch_free | launch_half
+  care_plan: care_plus           # care | care_plus | none
+  client_name: คุณสมหญิง ใจดี
+  client_contact: 080-000-0000
+  notes: ""

@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import { getSite } from '../lib/data.js';
+import { baht } from '../lib/format.js';
+
+const { settings: s, services } = await getSite();
+const depositRule = s.deposit_type === 'percent'
+  ? `มัดจำ ${s.deposit_value}% ของราคาบริการ`
+  : s.deposit_type === 'fixed' ? `มัดจำ ${baht(s.deposit_value)}` : '';
+---
+<Base title="บริการและราคา" description={`บริการและราคาของ ${s.shop_name} จองคิวและมัดจำผ่าน LINE ได้ทันที`}>
+  <section class="section">
+    <div class="wrap">
+      <h1>บริการและราคา</h1>
+      <p class="muted">
+        {depositRule && <>{depositRule} (บางบริการไม่ต้องมัดจำ) ชำระผ่าน QR พร้อมเพย์ แล้วส่งสลิปในแชท LINE ระบบยืนยันคิวให้อัตโนมัติ<br /></>}
+        ราคาอาจเปลี่ยนแปลงตามความยาวผมหรือรายละเอียดงาน ร้านจะแจ้งก่อนเริ่มบริการทุกครั้ง
+      </p>
+      <div class="grid grid-2" style="margin-top:24px">
+        {services.map((svc) => <ServiceCard service={svc} settings={s} />)}
+      </div>
+    </div>
+  </section>
+</Base>

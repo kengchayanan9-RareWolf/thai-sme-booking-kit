@@ -1,0 +1,10 @@
+{
+  "name": "thai-sme-booking",
+  "version": "0.1.0",
+  "description": "Build, quote, deploy and maintain LINE OA booking systems for Thai SMEs: LIFF booking, PromptPay deposits with automatic slip verification, FAQ bot, Google Sheets backend, website, Thai quotations.",
+  "author": { "name": "kengsan-rarewolf" },
+  "homepage": "https://github.com/kengchayanan9-RareWolf/thai-sme-booking-kit",
+  "repository": "https://github.com/kengchayanan9-RareWolf/thai-sme-booking-kit",
+  "license": "MIT",
+  "keywords": ["thailand", "line-oa", "liff", "promptpay", "booking", "sme", "freelance"]
+}

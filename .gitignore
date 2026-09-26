@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+*.log
+
+# secrets & local tool state
+.env
+.env.*
+!.env.example
+.dev.vars
+.clasprc.json
+.clasp.json
+
+# client data never goes in the public repo
+clients/
+quote-*.md
+quote-*.html
+
+# generated builds
+demo/*/build/

@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import { getSite } from '../lib/data.js';
+
+const { settings: s, reviews } = await getSite();
+---
+<Base title="รีวิวจากลูกค้า" description={`รีวิวจากลูกค้าของ ${s.shop_name}`}>
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h1 style="margin:0">รีวิวจากลูกค้า</h1>
+        {s.google_review_url && <a class="btn btn-ghost" href={s.google_review_url} rel="noopener">รีวิวเราบน Google</a>}
+      </div>
+      {reviews.length === 0 && <p class="muted">ยังไม่มีรีวิว — มาเป็นคนแรกที่รีวิวเราได้เลย</p>}
+      <div class="grid grid-2">
+        {reviews.map((r) => (
+          <figure class="card review" style="margin:0">
+            <div class="stars" aria-label={`${r.stars} ดาว`}>{'★'.repeat(r.stars)}</div>
+            <blockquote style="margin:0"><p>{r.text}</p></blockquote>
+            <figcaption class="muted">— {r.name}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
