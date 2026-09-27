@@ -212,8 +212,8 @@ Full walkthrough: skills/thai-sme-booking/references/deploy-checklist.md
    - In the Sheet: menu 🗓️ ระบบจอง → ⚙️ ติดตั้ง / ซ่อมระบบ (authorize), then \`npx @google/clasp create-deployment -d "v1"\` → web app URL = https://script.google.com/macros/s/<deploymentId>/exec
    - Later code updates: \`clasp push -f && clasp update-deployment <deploymentId>\` (URL stays the same)
 2. **Worker**: \`cd worker && npm i && npx wrangler secret put LINE_CHANNEL_SECRET && npx wrangler secret put SHARED_SECRET && npx wrangler deploy\`
-3. **LINE**: webhook URL = <worker-url>/webhook, LIFF endpoint = ${siteUrl}/liff/book
-4. **Site**: Cloudflare Pages → build \`npm run build\`, output \`dist\`, root \`site\`, env from \`site/.env\`
+3. **LINE**: webhook URL = <worker-url>/webhook, LIFF endpoint = ${siteUrl}/liff/book/ (trailing slash)
+4. **Site**: Cloudflare → Create application → "Continue to Pages" (not Workers) → build \`npm run build\`, output \`dist\`, root \`site\`, env from \`site/.env\`
 5. Put gas_url / worker_url / liff_id / line_login_channel_id into client.yaml → re-run build-config → redeploy
 6. Go-live test script: deploy-checklist.md §7
 `;

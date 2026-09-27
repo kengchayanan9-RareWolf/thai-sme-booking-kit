@@ -10,10 +10,12 @@ At build time `src/lib/data.js` fetches `<worker>/api/site`, which returns `site
 - Site tab keys used by the template: `hero_title`, `hero_subtitle`, `hero_image_url`, `about`, `highlight_{1..3}_title/text`, `cta_text`, `credit_text`, `credit_url` (optional "เว็บไซต์โดย …" footer link: your portfolio lead magnet, but ask the owner first).
 
 ## Deploy (Git integration, needed for the deploy hook)
-1. Put `clients/<slug>/build/site` in a Git repo (a private repo in the shop's GitHub, or your private org).
-2. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → pick the repo.
-   - Framework preset **Astro**, build command `npm run build`, output `dist`
+1. Put `clients/<slug>/build/site` in a Git repo (a private repo in the shop's GitHub, or your private org). For the public demo shop, skip this and point Pages at the kit repo with root directory `skills/thai-sme-booking/templates/site`: every kit release then refreshes the demo.
+2. Cloudflare dashboard → Workers & Pages → **Create application**. ⚠️ Since 2026 this page defaults to **Workers** ("Continue with GitHub" creates a Worker, which has no deploy hook). Click the small link **"Need to use the legacy Pages workflow? Continue to Pages"** → **Import an existing Git repository** → pick the repo.
+   - Framework preset **Astro**, build command `npm run build`, output `dist`, root directory = the site folder
    - Environment variables: `PUBLIC_API_BASE=<worker url>`, `PUBLIC_LIFF_ID=<liff id>`, `SITE_URL=<https://site>`, `NODE_VERSION=22`
+   - Pages serves `/services/` style URLs (308 redirect from `/services`). Use trailing slashes in anything external, above all the **LIFF endpoint `…/liff/book/`**.
+   - Pages is labelled "legacy" but fully works. A future kit version may move to Workers static assets with a build-trigger API instead of deploy hooks.
 3. Settings → Builds & deployments → **Deploy hooks** → Add ("sheet-publish", branch main) → copy the URL → Script Property `PAGES_DEPLOY_HOOK`.
 4. Custom domain: Pages → Custom domains → add (DNS at Cloudflare is easiest). Then update `deploy.site_url`, the LIFF endpoint URL, and the Worker `ALLOWED_ORIGINS` (rebuild + `wrangler deploy`).
 

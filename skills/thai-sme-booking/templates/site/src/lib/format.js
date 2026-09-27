@@ -12,7 +12,7 @@ export function lineChatUrl(s) {
 /** LIFF booking link; the optional service id is forwarded to /liff/book as ?service=. */
 export function bookingUrl(s, serviceId) {
   if (s.liff_id) return `https://liff.line.me/${s.liff_id}${serviceId ? `?service=${encodeURIComponent(serviceId)}` : ''}`;
-  return lineChatUrl(s) || '/contact';
+  return lineChatUrl(s) || '/contact/';
 }
 
 export function telUrl(phone) {

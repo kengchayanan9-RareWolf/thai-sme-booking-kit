@@ -29,7 +29,7 @@ Provider (e.g. "Baan Suay Salon")          ← one per shop, created when enabli
 2. **Basic settings → Channel ID** → `deploy.line_login_channel_id` (the Worker uses it to verify ID tokens).
 3. **LIFF tab → Add**:
    - Size: **Full**
-   - Endpoint URL: `https://<site>/liff/book`
+   - Endpoint URL: `https://<site>/liff/book/` (**with the trailing slash**: Pages redirects `/liff/book` → `/liff/book/`, and a redirect breaks LIFF login)
    - Scopes: `openid`, `profile`
    - Bot link feature: **On (Aggressive)**, so customers are asked to add the OA as a friend and can receive the confirmation and reminders
    - → copy the **LIFF ID** (`1234567890-AbCdEfGh`) → `deploy.liff_id` and Settings `liff_id`

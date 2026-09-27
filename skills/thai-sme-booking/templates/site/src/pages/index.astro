@@ -20,7 +20,7 @@ const book = bookingUrl(s);
         {site.hero_subtitle && <p class="lead">{site.hero_subtitle}</p>}
         <div class="btn-row">
           <a class="btn btn-primary" href={book}>{site.cta_text || 'จองคิวผ่าน LINE'}</a>
-          <a class="btn btn-ghost" href="/services">ดูบริการและราคา</a>
+          <a class="btn btn-ghost" href="/services/">ดูบริการและราคา</a>
         </div>
       </div>
       <div class="hero-art" aria-hidden={site.hero_image_url ? undefined : 'true'}>
@@ -43,7 +43,7 @@ const book = bookingUrl(s);
     <div class="wrap">
       <div class="section-head">
         <div><h2>บริการยอดนิยม</h2><p>ราคาชัดเจน จองและมัดจำออนไลน์ได้ทันที</p></div>
-        <a href="/services">ดูทั้งหมด →</a>
+        <a href="/services/">ดูทั้งหมด →</a>
       </div>
       <div class="grid grid-2">
         {services.slice(0, 4).map((svc) => <ServiceCard service={svc} settings={s} />)}
@@ -64,7 +64,7 @@ const book = bookingUrl(s);
   {reviews.length > 0 && (
     <section class="section">
       <div class="wrap">
-        <div class="section-head"><h2>ลูกค้าพูดถึงเรา</h2><a href="/reviews">อ่านรีวิวทั้งหมด →</a></div>
+        <div class="section-head"><h2>ลูกค้าพูดถึงเรา</h2><a href="/reviews/">อ่านรีวิวทั้งหมด →</a></div>
         <div class="grid grid-3">
           {reviews.slice(0, 3).map((r) => (
             <figure class="card review" style="margin:0">
@@ -89,7 +89,7 @@ const book = bookingUrl(s);
         {s.address && <p>{s.address}</p>}
         <div class="btn-row">
           {s.map_url && <a class="btn btn-ghost" href={s.map_url} rel="noopener">เปิด Google Maps</a>}
-          <a class="btn btn-ghost" href="/contact">ช่องทางติดต่อ</a>
+          <a class="btn btn-ghost" href="/contact/">ช่องทางติดต่อ</a>
         </div>
       </div>
     </div>

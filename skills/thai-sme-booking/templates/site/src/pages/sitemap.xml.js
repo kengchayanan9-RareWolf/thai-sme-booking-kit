@@ -1,4 +1,4 @@
-const PAGES = ['/', '/services', '/team', '/reviews', '/contact', '/privacy'];
+const PAGES = ['/', '/services/', '/team/', '/reviews/', '/contact/', '/privacy/'];
 
 export function GET({ site }) {
   if (!site) return new Response('Set SITE_URL to generate a sitemap', { status: 404 });

@@ -15,13 +15,14 @@ const site = data.site;
 const fullTitle = title ? `${title} | ${s.shop_name}` : `${s.shop_name}${s.tagline ? ' – ' + s.tagline : ''}`;
 const desc = description || site.hero_subtitle || s.tagline || '';
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+// Cloudflare Pages serves /services/ (and 308-redirects /services), so links and matching use trailing slashes.
+const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : Astro.url.pathname + '/';
 const nav = [
   ['/', 'หน้าแรก'],
-  ['/services', 'บริการและราคา'],
-  ['/team', 'ทีมงาน'],
-  ['/reviews', 'รีวิว'],
-  ['/contact', 'ติดต่อ']
+  ['/services/', 'บริการและราคา'],
+  ['/team/', 'ทีมงาน'],
+  ['/reviews/', 'รีวิว'],
+  ['/contact/', 'ติดต่อ']
 ];
 const book = bookingUrl(s);
 const cta = site.cta_text || 'จองคิวผ่าน LINE';
@@ -83,8 +84,8 @@ const cta = site.cta_text || 'จองคิวผ่าน LINE';
               </div>
             </div>
             <div class="footer-links">
-              <a href="/contact">เวลาทำการและแผนที่</a>
-              <a href="/privacy">นโยบายความเป็นส่วนตัว</a>
+              <a href="/contact/">เวลาทำการและแผนที่</a>
+              <a href="/privacy/">นโยบายความเป็นส่วนตัว</a>
               {site.credit_text && (site.credit_url ? <a href={site.credit_url} rel="noopener">{site.credit_text}</a> : <span>{site.credit_text}</span>)}
             </div>
           </div>

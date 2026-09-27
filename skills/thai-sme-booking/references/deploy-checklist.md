@@ -32,13 +32,13 @@ Do the steps in order; each unlocks the next. Accounts are created **in the shop
 - [ ] Channel secret → `wrangler secret put LINE_CHANNEL_SECRET`. Long-lived channel access token → Script Property
 - [ ] Webhook URL `<worker>/webhook` → Verify ✓ → Use webhook ON
 - [ ] OA Manager response settings: Chat ON, Webhook ON, **Auto-reply OFF**, Greeting ON
-- [ ] LINE Login channel **in the same provider** → LIFF app: size Full, endpoint `<site>/liff/book`, scopes `openid profile`, bot link On (Aggressive) → LIFF ID → `deploy.liff_id`; channel ID → `deploy.line_login_channel_id`
+- [ ] LINE Login channel **in the same provider** → LIFF app: size Full, endpoint `<site>/liff/book/` (trailing slash), scopes `openid profile`, bot link On (Aggressive) → LIFF ID → `deploy.liff_id`; channel ID → `deploy.line_login_channel_id`
 - [ ] **Publish** the LINE Login channel (Developing → Published), otherwise customers cannot log in
 - [ ] Rich menu in OA Manager (layout in line-setup.md)
 
 ## 4. Website — `references/website.md`
 - [ ] Rebuild (now with worker_url, liff_id, site_url) → push `build/site` to a Git repo (shop's GitHub, or your private org)
-- [ ] Cloudflare → Workers & Pages → Create → Pages → Connect to Git → preset Astro, build `npm run build`, output `dist`, env `PUBLIC_API_BASE`, `PUBLIC_LIFF_ID`, `SITE_URL`, `NODE_VERSION=22`
+- [ ] Cloudflare → Workers & Pages → Create application → **"Continue to Pages"** (the default creates a Worker!) → Import Git repo → preset Astro, build `npm run build`, output `dist`, env `PUBLIC_API_BASE`, `PUBLIC_LIFF_ID`, `SITE_URL`, `NODE_VERSION=22`
 - [ ] Settings → Builds → Deploy hooks → add → URL → Script Property `PAGES_DEPLOY_HOOK`
 - [ ] Custom domain (optional) → update `deploy.site_url`, the LIFF endpoint, `ALLOWED_ORIGINS` → rebuild + redeploy the Worker
 - [ ] Set Settings `liff_id`, `site_url` in the Sheet (seeded from client.yaml if already known)

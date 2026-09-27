@@ -1,5 +1,5 @@
 ---
-// LIFF endpoint: set the LIFF app's Endpoint URL to <site>/liff/book (size: Full).
+// LIFF endpoint: set the LIFF app's Endpoint URL to <site>/liff/book/ (trailing slash; size: Full).
 import Base from '../../layouts/Base.astro';
 const api = (import.meta.env.PUBLIC_API_BASE || '').replace(/\/$/, '');
 const liffId = import.meta.env.PUBLIC_LIFF_ID || '';
@@ -35,7 +35,7 @@ const liffId = import.meta.env.PUBLIC_LIFF_ID || '';
         <label>เบอร์โทร <input type="tel" id="phone" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="08x-xxx-xxxx" /></label>
         <label class="consent">
           <input type="checkbox" id="consent" />
-          <span>ยินยอมให้ร้านเก็บชื่อ เบอร์โทร และบัญชี LINE เพื่อจัดการนัดหมาย ตาม<a href="/privacy" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></span>
+          <span>ยินยอมให้ร้านเก็บชื่อ เบอร์โทร และบัญชี LINE เพื่อจัดการนัดหมาย ตาม<a href="/privacy/" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a></span>
         </label>
       </fieldset>
 
