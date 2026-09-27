@@ -32,7 +32,7 @@ Do the steps in order; each unlocks the next. Accounts are created **in the shop
 - [ ] Channel secret → `wrangler secret put LINE_CHANNEL_SECRET`. Long-lived channel access token → Script Property
 - [ ] Webhook URL `<worker>/webhook` → Verify ✓ → Use webhook ON
 - [ ] OA Manager response settings: Chat ON, Webhook ON, **Auto-reply OFF**, Greeting ON
-- [ ] LINE Login channel **in the same provider** → LIFF app: size Full, endpoint `<site>/liff/book/` (trailing slash), scopes `openid profile`, bot link On (Aggressive) → LIFF ID → `deploy.liff_id`; channel ID → `deploy.line_login_channel_id`
+- [ ] LINE Login channel **in the same provider as the OA (check the breadcrumb: it may not be the one you named)**, region **Thailand** (default is Japan), linked OA = this shop → LIFF app: size Full, endpoint `<site>/liff/book/` (trailing slash), scopes `openid profile`, bot link On (Aggressive) → LIFF ID → `deploy.liff_id`; channel ID → `deploy.line_login_channel_id`
 - [ ] **Publish** the LINE Login channel (Developing → Published), otherwise customers cannot log in
 - [ ] Rich menu in OA Manager (layout in line-setup.md)
 

@@ -25,7 +25,12 @@ Provider (e.g. "Baan Suay Salon")          ← one per shop, created when enabli
    - Greeting message: **ON**. Edit the text, e.g. "ขอบคุณที่เพิ่มเพื่อนค่ะ 🙏 กดเมนู 'จองคิว' ด้านล่างเพื่อจองได้ตลอด 24 ชม."
 
 ## 2. LINE Login channel + LIFF
-1. Developers console → **same provider** → Create a new channel → **LINE Login** → app type **Web app**. Name it "<shop> จองคิว" and add an icon.
+0. **Find the OA's real provider first.** Open the Messaging API channel in the Developers console and read the breadcrumb (`TOP › <provider> › <channel>`). Enabling the Messaging API in OA Manager can attach the OA to an *existing* provider (e.g. your personal "Self Developer") instead of the one you just named. Create the LINE Login channel under **whatever provider the breadcrumb shows**; a channel can't be moved later. (Demo shop lesson: the first LIFF was built under the wrong provider and had to be recreated.)
+1. Developers console → **that provider** → Create a new channel → **LINE Login**:
+   - **Region to provide the service: Thailand.** It defaults to *Japan*, and the "Company or owner's country" dropdown is a separate field.
+   - App type **Web app** · name "<shop> จองคิว" · icon · Privacy policy URL `https://<site>/privacy/` (shown on the login consent screen)
+   - Tick the LINE Developers Agreement + LY Corporation Privacy Policy acknowledgement → Create
+   - **Basic settings → Linked LINE Official Account → Edit → pick the shop's OA.** It defaults to the first OA in the provider, which may be another client's.
 2. **Basic settings → Channel ID** → `deploy.line_login_channel_id` (the Worker uses it to verify ID tokens).
 3. **LIFF tab → Add**:
    - Size: **Full**
